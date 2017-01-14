@@ -12,15 +12,16 @@ import dagger.Provides;
 
 @Module
 public class FlavorLocalModule {
-    @Provides
-    @Singleton
-    PreferencesManager providePreferencesManager(Context context) {
-        return new PreferencesManager(context);
-    }
+    public static final String TAG = "BASE";
 
     @Provides
     @Singleton
-    RealmManager provideRealmManager() {
+    RealmManager provideRealmManager(Context context) {
+        Log.e(TAG, "provideRealmManager init: ");
+        Stetho.initialize(Stetho.newInitializerBuilder(context)
+                .enableDumpapp(Stetho.defaultDumperPluginsProvider(context))
+                .enableWebKitInspector(RealmInspectorModulesProvider
+                        .builder(context).build()).build());
         return new RealmManager();
     }
 }

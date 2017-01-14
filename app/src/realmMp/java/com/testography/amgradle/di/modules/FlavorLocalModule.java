@@ -1,8 +1,9 @@
 package com.testography.amgradle.di.modules;
 
 import android.content.Context;
+import android.util.Log;
 
-import com.testography.amgradle.data.managers.PreferencesManager;
+import com.facebook.stetho.Stetho;
 import com.testography.amgradle.data.managers.RealmManager;
 
 import javax.inject.Singleton;
@@ -12,15 +13,13 @@ import dagger.Provides;
 
 @Module
 public class FlavorLocalModule {
-    @Provides
-    @Singleton
-    PreferencesManager providePreferencesManager(Context context) {
-        return new PreferencesManager(context);
-    }
+    private static final String TAG = "REALM_MP";
 
     @Provides
     @Singleton
-    RealmManager provideRealmManager() {
+    RealmManager provideRealmManager(Context context) {
+        Log.e(TAG, "provideRealmManager init: ");
+        Stetho.initializeWithDefaults(context);
         return new RealmManager();
     }
 }

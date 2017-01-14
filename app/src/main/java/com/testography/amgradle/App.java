@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.facebook.stetho.Stetho;
 import com.testography.amgradle.di.DaggerService;
 import com.testography.amgradle.di.components.AppComponent;
 import com.testography.amgradle.di.components.DaggerAppComponent;
@@ -15,7 +14,6 @@ import com.testography.amgradle.di.modules.RootModule;
 import com.testography.amgradle.mortar.ScreenScoper;
 import com.testography.amgradle.ui.activities.DaggerRootActivity_RootComponent;
 import com.testography.amgradle.ui.activities.RootActivity;
-import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import io.realm.Realm;
 import mortar.MortarScope;
@@ -46,11 +44,6 @@ public class App extends Application {
         super.onCreate();
 
         Realm.init(this);
-
-        Stetho.initialize(Stetho.newInitializerBuilder(this)
-                .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
-                .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
-                .build());
 
         createAppComponent();
         createRootActivityComponent();
