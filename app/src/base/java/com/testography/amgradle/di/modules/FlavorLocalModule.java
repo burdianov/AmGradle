@@ -1,9 +1,12 @@
 package com.testography.amgradle.di.modules;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.facebook.stetho.Stetho;
 import com.testography.amgradle.data.managers.PreferencesManager;
 import com.testography.amgradle.data.managers.RealmManager;
+import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import javax.inject.Singleton;
 
