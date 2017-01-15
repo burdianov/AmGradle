@@ -9,9 +9,9 @@ android {
     buildToolsVersion "25.0.1"
     defaultConfig {
         /*applicationId "com.testography.amgradle"
-        minSdkVersion 16
+        minSdkVersion 16*/
         targetSdkVersion 25
-        versionCode 1
+        /*versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"*/
     }
@@ -40,6 +40,12 @@ android {
             versionCode 1
             versionName '2.0'
             versionNameSuffix 'realmMp'
+            // buildConfigField 'String', 'HOST', '"http://anyUrl.com"' // define for this flavor
+
+            // necessary for automatic synchronization with Realm Object Server
+            realm {
+                syncEnabled = true;
+            }
         }
     }
 }
