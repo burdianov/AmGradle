@@ -1,7 +1,6 @@
 package com.testography.amgradle.data.managers;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 
 import com.fernandocejas.frodo.annotation.RxLogObservable;
 import com.testography.amgradle.App;
@@ -12,7 +11,6 @@ import com.testography.amgradle.data.network.res.CommentRes;
 import com.testography.amgradle.data.network.res.ProductRes;
 import com.testography.amgradle.data.storage.dto.CommentDto;
 import com.testography.amgradle.data.storage.dto.ProductDto;
-import com.testography.amgradle.data.storage.dto.ProductLocalInfo;
 import com.testography.amgradle.data.storage.dto.UserAddressDto;
 import com.testography.amgradle.data.storage.realm.ProductRealm;
 import com.testography.amgradle.di.DaggerService;
@@ -76,12 +74,13 @@ public class DataManager {
         component.inject(this);
 
         generateMockData();
-        initUserData();
+        initUserProfileData();
+        initUserAddressData();
+        initUserSettingsData();
     }
 
-    private void initUserData() {
+    private void initUserProfileData() {
         mUserProfileInfo = new HashMap<>();
-        mUserAddresses = new ArrayList<>();
 
         mUserProfileInfo = mPreferencesManager.getUserProfileInfo();
         if (mUserProfileInfo.get(PROFILE_FULL_NAME_KEY).equals("")) {
@@ -95,6 +94,10 @@ public class DataManager {
         if (mUserProfileInfo.get(PROFILE_PHONE_KEY).equals("")) {
             mUserProfileInfo.put(PROFILE_PHONE_KEY, "+7(917)971-38-27");
         }
+    }
+
+    private void initUserAddressData() {
+        mUserAddresses = new ArrayList<>();
         List<UserAddressDto> userAddresses = getPreferencesManager().getUserAddresses();
 
         if (userAddresses == null) {
@@ -108,6 +111,9 @@ public class DataManager {
         } else {
             mUserAddresses = userAddresses;
         }
+    }
+
+    private void initUserSettingsData() {
         mUserSettings = getPreferencesManager().getUserSettings();
     }
 
@@ -154,25 +160,6 @@ public class DataManager {
                         mRealmManager.saveNewCommentToRealm(productId, commentRes);
                     }
                 });
-    }
-
-    private void deleteFromDb(ProductRes productRes) {
-        mPreferencesManager.deleteProduct(productRes);
-    }
-
-    @Nullable
-    public List<ProductDto> fromDisk() {
-        List<ProductDto> productDtoList = mPreferencesManager.getProductList();
-
-        if (productDtoList == null) {
-            productDtoList = generateMockData();
-            mPreferencesManager.generateProductsMockData(productDtoList);
-        }
-        return productDtoList;
-    }
-
-    private void saveOnDisk(ProductRes productRes) {
-//        mPreferencesManager.updateOrInsertProduct(productRes);
     }
 
     public PreferencesManager getPreferencesManager() {
@@ -303,16 +290,6 @@ public class DataManager {
 
     public Retrofit getRetrofit() {
         return mRetrofit;
-    }
-
-    public Observable<ProductLocalInfo> getProductLocalInfoObs(ProductRes productRes) {
-        return Observable.just(getPreferencesManager().getLocalInfo(productRes
-                .getRemoteId()))
-                .flatMap(productLocalInfo ->
-                        productLocalInfo == null ?
-                                Observable.just(new ProductLocalInfo()) :
-                                Observable.just(productLocalInfo)
-                );
     }
 
     public Observable<ProductRealm> getProductFromRealm() {

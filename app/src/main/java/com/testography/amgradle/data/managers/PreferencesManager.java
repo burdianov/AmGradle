@@ -5,16 +5,13 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.google.gson.Gson;
-import com.testography.amgradle.data.network.res.ProductRes;
 import com.testography.amgradle.data.storage.dto.ProductDto;
-import com.testography.amgradle.data.storage.dto.ProductLocalInfo;
 import com.testography.amgradle.data.storage.dto.UserAddressDto;
 import com.testography.amgradle.utils.ConstantsManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -115,21 +112,6 @@ public class PreferencesManager {
         editor.apply();
     }
 
-    public ProductLocalInfo getLocalInfo(int remoteId) {
-        // TODO: 16-Dec-16 implement me
-        return null;
-    }
-
-    public void generateProductsMockData(List<ProductDto> mockProductList) {
-        if (mSharedPreferences.getString(MOCK_PRODUCT_LIST, null) == null) {
-            SharedPreferences.Editor editor = mSharedPreferences.edit();
-            Gson gson = new Gson();
-            String products = gson.toJson(mockProductList);
-            editor.putString(MOCK_PRODUCT_LIST, products);
-            editor.apply();
-        }
-    }
-
     public List<ProductDto> getProductList() {
         String products = mSharedPreferences.getString(MOCK_PRODUCT_LIST, null);
         if (products != null) {
@@ -138,44 +120,6 @@ public class PreferencesManager {
             return Arrays.asList(productList);
         }
         return null;
-    }
-
-    public void updateOrInsertLocalInfo(ProductLocalInfo pli) {
-        String products = mSharedPreferences.getString(MOCK_PRODUCT_LIST, null);
-        if (products != null) {
-            ProductDto productDto;
-            Gson gson = new Gson();
-            ProductDto[] productList = gson.fromJson(products, ProductDto[].class);
-            Iterator<ProductDto> iterator = Arrays.asList(productList).iterator();
-            while (iterator.hasNext()) {
-                productDto = iterator.next();
-                if (productDto.getId() == pli.getRemoteId()) {
-                    productDto.setCount(pli.getCount());
-                    productDto.setFavorite(pli.isFavorite());
-                }
-            }
-            updateProductList(Arrays.asList(productList));
-        }
-    }
-
-    public void deleteProduct(ProductRes productRes) {
-        // TODO: 21-Dec-16 shall be fixed with Realm
-        String products = mSharedPreferences.getString(MOCK_PRODUCT_LIST, null);
-        ArrayList<ProductDto> productDtoList;
-        if (products != null) {
-            Gson gson = new Gson();
-            ProductDto[] productList = gson.fromJson(products, ProductDto[].class);
-            productDtoList = new ArrayList<>(Arrays.asList(productList));
-            Iterator<ProductDto> iterator = productDtoList.iterator();
-            ProductDto productDto;
-            while (iterator.hasNext()) {
-                productDto = iterator.next();
-                if (productDto.getId() == productRes.getRemoteId()) {
-                    iterator.remove();
-                }
-            }
-            updateProductList(productDtoList);
-        }
     }
 
     private void updateProductList(List<ProductDto> productDtoList) {
@@ -197,12 +141,6 @@ public class PreferencesManager {
     public String getAuthToken() {
         return mSharedPreferences.getString(ConstantsManager.AUTH_TOKEN_KEY,
                 ConstantsManager.INVALID_TOKEN);
-    }
-
-    public void clearAllData() {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.clear();
-        editor.apply();
     }
 
     public ProductDto getProductById(int productId) {
