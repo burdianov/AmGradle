@@ -65,8 +65,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter
         }
         holder.rating.setRating(comment.getRating());
         holder.commentTxt.setText(comment.getComment());
+        String urlAvatar = comment.getAvatarUrl();
+        if (urlAvatar == null || urlAvatar.isEmpty()) {
+            urlAvatar = "http://skill-branch.ru/img/avatar-1.png";
+        }
 
-        mPicasso.load(comment.getAvatarUrl())
+        mPicasso.load(urlAvatar)
+                .error(R.drawable.ic_account_circle_black_24dp)
                 .fit()
                 .into(holder.commentAvatarImg);
     }
@@ -83,6 +88,12 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter
         long commentTime = commentDate.getTime();
 
         return DateUtils.getRelativeTimeSpanString(commentTime).toString();
+    }
+
+    public void reloadAdapter(List<CommentDto> commentDtos) {
+        mCommentsList.clear();
+        mCommentsList = commentDtos;
+        notifyDataSetChanged();
     }
 
     public class CommentsViewHolder extends RecyclerView.ViewHolder {
