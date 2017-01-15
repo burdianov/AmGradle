@@ -11,10 +11,14 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import io.realm.Realm;
+import io.realm.SyncConfiguration;
 import io.realm.SyncCredentials;
 import io.realm.SyncUser;
 import rx.Observable;
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 @Module
 public class FlavorLocalModule {
@@ -62,6 +66,15 @@ public class FlavorLocalModule {
                     });
                 }*/
             }
+        })
+        .subscribeOn(Schedulers.io()) // создать последовательность на io потоке
+        .observeOn(AndroidSchedulers.mainThread()) // вернуть результат в main thread
+        .subscribe(syncUser -> {
+            SyncConfiguration syncConfig = new SyncConfiguration.Builder
+                    (syncUser, ConstantsManager.REALM_DB_URL).build(); //
+            // указываем пользователя и адресс realm object server
+            Realm.setDefaultConfiguration(syncConfig); // устанавливаем sync конфигурацию для realm mobile platform
+            Log.e(TAG, "set sync config for realm: ");
         });
 
         return new RealmManager();
