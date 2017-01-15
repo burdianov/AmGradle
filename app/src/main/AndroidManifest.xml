@@ -17,7 +17,7 @@
         android:theme="@style/AppTheme">
 
         <meta-data
-            android:name="com.testography.amgradle.utils.GlideConfiguration"
+            android:name=".utils.GlideConfiguration"
             android:value="GlideModule"/>
 
         <activity
