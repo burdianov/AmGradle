@@ -24,6 +24,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -80,8 +81,6 @@ public class RootActivity extends AppCompatActivity implements IRootView,
     FrameLayout mRootFrame;
     @BindView(R.id.appbar_layout)
     AppBarLayout mAppBar;
-    @BindView(R.id.common_fab)
-    FloatingActionButton mFab;
 
     protected ProgressDialog mProgressDialog;
 
@@ -347,6 +346,8 @@ public class RootActivity extends AppCompatActivity implements IRootView,
         return super.onPrepareOptionsMenu(mMenu);
     }
 
+    //region ==================== TabLayout ===================
+
     @Override
     public void setTabLayout(ViewPager pager) {
         if (mAppBar.getChildCount() <= 1) {
@@ -367,10 +368,40 @@ public class RootActivity extends AppCompatActivity implements IRootView,
         }
     }
 
+    //endregion
+
+    //region ==================== FabView ===================
+
     @Override
-    public FloatingActionButton getFab() {
-        return mFab;
+    public void setFab(boolean isVisible, int icon,
+                       View.OnClickListener onClickListener) {
+        if (isVisible) {
+            FloatingActionButton fab;
+            if (mCoordinatorContainer.findViewById(R.id.common_fab) == null) {
+                fab = (FloatingActionButton) LayoutInflater.from
+                        (this).inflate(R.layout.fab, mCoordinatorContainer, false);
+                mCoordinatorContainer.addView(fab);
+            } else {
+                fab = (FloatingActionButton) mCoordinatorContainer.findViewById(R.id.common_fab);
+            }
+
+            fab.setImageDrawable(ContextCompat.getDrawable(getContext(), icon));
+            fab.setOnClickListener(onClickListener);
+        } else {
+            removeFab();
+        }
     }
+
+    @Override
+    public void removeFab() {
+        View fab = mCoordinatorContainer.getChildAt(2);
+        if (fab != null && fab instanceof FloatingActionButton) {
+            fab.setOnClickListener(null);
+            mCoordinatorContainer.removeView(fab);
+        }
+    }
+
+    //endregion
 
     @Override
     public void changeCart(int resId) {
@@ -388,18 +419,6 @@ public class RootActivity extends AppCompatActivity implements IRootView,
 
         circle.setBackground(ResourcesCompat.getDrawable(getResources(),
                 R.drawable.circle_color_red, null));
-    }
-
-    //endregion
-
-    //region ==================== FabView ===================
-
-    @Override
-    public void setFab(int visible, int icon,
-                       View.OnClickListener onClickListener) {
-        mFab.setImageDrawable(ContextCompat.getDrawable(getContext(), icon));
-        mFab.setVisibility(visible);
-        mFab.setOnClickListener(onClickListener);
     }
 
     //endregion

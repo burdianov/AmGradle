@@ -66,8 +66,8 @@ public class CommentsView extends AbstractView<CommentsScreen.CommentsPresenter>
         dialogBuilder.setTitle("Comment the product?")
                 .setView(dialogView)
                 .setPositiveButton("Comment the product", (dialog, which) -> {
-                    CommentRealm comment = new CommentRealm(ratingBar.getRating()
-                            , commentEt.getText().toString());
+                    CommentRealm comment = new CommentRealm(ratingBar.getRating(),
+                            commentEt.getText().toString());
                     mPresenter.addComment(comment);
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())

@@ -18,8 +18,7 @@ public class RealmManager {
         Realm realm = Realm.getDefaultInstance();
         ProductRealm product = realm.where(ProductRealm.class)
                 .equalTo("id", productId)
-                .findAll()
-                .get(0);
+                .findFirst();
         CommentRealm commentRealm = new CommentRealm(commentRes);
         realm.executeTransaction(realm1 -> product.addComment(commentRealm));
         realm.close();

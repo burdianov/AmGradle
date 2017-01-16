@@ -69,7 +69,8 @@ public class FlavorLocalModule {
         })
         .subscribeOn(Schedulers.io()) // создать последовательность на io потоке
         .observeOn(AndroidSchedulers.mainThread()) // вернуть результат в main thread
-        .subscribe(syncUser -> {
+        /*.onErrorResumeNext(Observable.empty())*/
+                .subscribe(syncUser -> {
             SyncConfiguration syncConfig = new SyncConfiguration.Builder
                     (syncUser, ConstantsManager.REALM_DB_URL).build(); //
             // указываем пользователя и адресс realm object server

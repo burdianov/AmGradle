@@ -3,7 +3,6 @@ package com.testography.amgradle.ui.screens.product_details.comments;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
-import android.view.View;
 
 import com.testography.amgradle.R;
 import com.testography.amgradle.data.network.res.CommentRes;
@@ -17,6 +16,7 @@ import com.testography.amgradle.mvp.presenters.AbstractPresenter;
 import com.testography.amgradle.ui.screens.product_details.DetailScreen;
 
 import dagger.Provides;
+import flow.Flow;
 import flow.TreeKey;
 import mortar.MortarScope;
 
@@ -94,8 +94,7 @@ public class AddCommentScreen extends AbstractScreen<DetailScreen.Component>
         @Override
         protected void initFab() {
             mRootPresenter.newFabBuilder()
-                    .setVisible(View.GONE)
-                    .setOnClickListener(null)
+                    .setVisible(false)
                     .build();
         }
 
@@ -119,9 +118,7 @@ public class AddCommentScreen extends AbstractScreen<DetailScreen.Component>
                             .show();
                 } else {
                     mModel.saveComment(mProduct.getId(), commentRes);
-                    getView().mCommentEt.setText("");
-                    getView().mCommentEt.clearFocus();
-                    getView().mRating.setRating(0);
+                    Flow.get(getView()).goBack();
                 }
             }
         }

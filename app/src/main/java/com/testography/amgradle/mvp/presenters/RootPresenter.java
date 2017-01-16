@@ -219,12 +219,12 @@ public class RootPresenter extends Presenter<IRootView> {
     }
 
     public class FabBuilder {
-        private int visibility = View.GONE;
+        private boolean isVisible = false;
         private int icon = R.drawable.ic_favorite_white_24dp;
         private View.OnClickListener onClickListener = null;
 
-        public FabBuilder setVisible(int visibility) {
-            this.visibility = visibility;
+        public FabBuilder setVisible(boolean isVisible) {
+            this.isVisible = isVisible;
             return this;
         }
 
@@ -241,7 +241,7 @@ public class RootPresenter extends Presenter<IRootView> {
         public void build() {
             if (getView() != null) {
                 RootActivity activity = (RootActivity) getView();
-                activity.setFab(visibility, icon, onClickListener);
+                activity.setFab(isVisible, icon, onClickListener);
             }
         }
     }

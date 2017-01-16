@@ -1,7 +1,6 @@
 package com.testography.amgradle.ui.screens.product;
 
 import android.os.Bundle;
-import android.view.View;
 
 import com.testography.amgradle.R;
 import com.testography.amgradle.data.storage.dto.ProductDto;
@@ -118,9 +117,7 @@ public class ProductScreen extends AbstractScreen<CatalogScreen.Component> {
         @Override
         protected void initFab() {
             mRootPresenter.newFabBuilder()
-                    .setIcon(R.drawable.ic_add_white_24dp)
-                    .setVisible(View.GONE)
-                    .setOnClickListener(null)
+                    .setVisible(false)
                     .build();
         }
 

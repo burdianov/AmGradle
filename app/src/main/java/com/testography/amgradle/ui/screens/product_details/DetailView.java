@@ -33,6 +33,7 @@ public class DetailView extends AbstractView<DetailScreen.DetailPresenter> {
 
     @Override
     public boolean viewOnBackPressed() {
+        sCurrentPage = 0;
         return false;
     }
 

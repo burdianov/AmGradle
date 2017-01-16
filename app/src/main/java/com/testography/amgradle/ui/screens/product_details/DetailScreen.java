@@ -2,7 +2,6 @@ package com.testography.amgradle.ui.screens.product_details;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.view.View;
 
 import com.squareup.picasso.Picasso;
 import com.testography.amgradle.R;
@@ -112,15 +111,14 @@ public class DetailScreen extends AbstractScreen<CatalogScreen.Component>
                 case 0:
                     mRootPresenter.newFabBuilder()
                             .setIcon(R.drawable.ic_favorite_white_24dp)
-                            .setVisible(View.VISIBLE)
+                            .setVisible(true)
                             .setOnClickListener(v -> getRootView().showMessage
-                                    ("Favorite button clicked"))
-                            .build();
+                                    ("Favorite button clicked")).build();
                     break;
                 case 1:
                     mRootPresenter.newFabBuilder()
                             .setIcon(R.drawable.ic_add_white_24dp)
-                            .setVisible(View.VISIBLE)
+                            .setVisible(true)
                             .setOnClickListener(v -> {
                                 if (getView() != null) {
                                     Flow.get(getView()).set(new AddCommentScreen(mProduct));
@@ -129,6 +127,11 @@ public class DetailScreen extends AbstractScreen<CatalogScreen.Component>
                             .build();
                     break;
             }
+        }
+
+        @Override
+        public void dropView(DetailView view) {
+            super.dropView(view);
         }
 
         @Override
