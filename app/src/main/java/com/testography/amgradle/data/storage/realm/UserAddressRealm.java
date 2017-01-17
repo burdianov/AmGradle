@@ -1,11 +1,13 @@
 package com.testography.amgradle.data.storage.realm;
 
+import com.testography.amgradle.data.storage.dto.UserAddressDto;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 public class UserAddressRealm extends RealmObject {
     @PrimaryKey
-    private int id;
+    private String id;
     private String name;
     private String street;
     private String house;
@@ -17,20 +19,18 @@ public class UserAddressRealm extends RealmObject {
     public UserAddressRealm() {
     }
 
-    public UserAddressRealm(int id, String name, String street,
-                            String house, String apartment, int floor,
-                            String comment, boolean favorite) {
-        this.id = id;
-        this.name = name;
-        this.street = street;
-        this.house = house;
-        this.apartment = apartment;
-        this.floor = floor;
-        this.comment = comment;
-        this.favorite = favorite;
+    public UserAddressRealm(UserAddressDto userAddressDto) {
+        this.id = userAddressDto.getId();
+        this.name = userAddressDto.getName();
+        this.street = userAddressDto.getStreet();
+        this.house = userAddressDto.getHouse();
+        this.apartment = userAddressDto.getApartment();
+        this.floor = userAddressDto.getFloor();
+        this.comment = userAddressDto.getComment();
+        this.favorite = userAddressDto.isFavorite();
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 

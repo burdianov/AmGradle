@@ -13,6 +13,7 @@ import com.testography.amgradle.data.storage.dto.CommentDto;
 import com.testography.amgradle.data.storage.dto.ProductDto;
 import com.testography.amgradle.data.storage.dto.UserAddressDto;
 import com.testography.amgradle.data.storage.realm.ProductRealm;
+import com.testography.amgradle.data.storage.realm.UserAddressRealm;
 import com.testography.amgradle.di.DaggerService;
 import com.testography.amgradle.di.components.DaggerDataManagerComponent;
 import com.testography.amgradle.di.components.DataManagerComponent;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.inject.Inject;
 
@@ -56,6 +58,10 @@ public class DataManager {
     private List<UserAddressDto> mUserAddresses;
     private Map<String, Boolean> mUserSettings;
 
+    public List<String> mDeletedPoducts = new ArrayList<>();
+
+    //region ==================== Data Manager ===================
+
     public static DataManager getInstance() {
         return sInstance;
     }
@@ -79,6 +85,10 @@ public class DataManager {
         initUserSettingsData();
     }
 
+    //endregion
+
+    //region ==================== User Profile ===================
+
     private void initUserProfileData() {
         mUserProfileInfo = new HashMap<>();
 
@@ -96,107 +106,8 @@ public class DataManager {
         }
     }
 
-    private void initUserAddressData() {
-        mUserAddresses = new ArrayList<>();
-        List<UserAddressDto> userAddresses = getPreferencesManager().getUserAddresses();
-
-        if (userAddresses == null) {
-            UserAddressDto userAddress;
-            userAddress = new UserAddressDto(1, "Home", "Airport Road", "24", "56",
-                    9, "Beware of crazy dogs");
-            mUserAddresses.add(userAddress);
-            userAddress = new UserAddressDto(2, "Work", "Central Park", "123", "67",
-                    2, "In the middle of nowhere");
-            mUserAddresses.add(userAddress);
-        } else {
-            mUserAddresses = userAddresses;
-        }
-    }
-
-    private void initUserSettingsData() {
-        mUserSettings = getPreferencesManager().getUserSettings();
-    }
-
-    public List<String> deletedPoducts = new ArrayList<>();
-
-    @RxLogObservable
-    public Observable<ProductRealm> getProductsObsFromNetwork() {
-        return mRestService.getProductResObs(mPreferencesManager.getLastProductUpdate())
-                .compose(new RestCallTransformer<List<ProductRes>>()) //
-                // трансформируем response, выбрасываем ApiError в случае ошибки
-                .flatMap(Observable::from) // преобразуем список товаров в последовательность товаров
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(Schedulers.io())
-                .doOnNext(productRes -> {
-                    if (!productRes.isActive()) {
-                        mRealmManager.deleteFromRealm(ProductRealm.class,
-                                productRes.getId()); // удалить из базы данных если не активен
-                        deletedPoducts.add(productRes.getId());
-                    }
-                })
-                .distinct(ProductRes::getRemoteId)
-                .filter(ProductRes::isActive) // пропускаем только активные товары
-                .doOnNext(productRes -> mRealmManager.saveProductResponseToRealm
-                        (productRes)) // сохраняем на диск только активные товары
-                .flatMap(productRes -> Observable.empty());
-    }
-
-    public void saveCommentToNetworkAndRealm(String productId,
-                                             CommentRes commentRes) {
-        mRestService.uploadComment(productId, commentRes)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(Schedulers.io())
-                .subscribe(new Subscriber<CommentRes>() {
-                    @Override
-                    public void onCompleted() {
-
-                    }
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-                    @Override
-                    public void onNext(CommentRes commentRes) {
-                        mRealmManager.saveNewCommentToRealm(productId, commentRes);
-                    }
-                });
-    }
-
-    public PreferencesManager getPreferencesManager() {
-        return mPreferencesManager;
-    }
-
-    public Context getAppContext() {
-        return mAppContext;
-    }
-
-    public boolean isAuthUser() {
-        return !mPreferencesManager.getAuthToken().equals(ConstantsManager
-                .INVALID_TOKEN);
-    }
-
-    public void loginUser(String email, String password) {
-        // TODO: 23-Oct-16 implement user authentication
-    }
-
-    public void updateProduct(ProductDto product) {
-        // TODO: 28-Oct-16 update product count or other property and save to DB
-    }
-
-    private String getResVal(int resourceId) {
-        return getAppContext().getString(resourceId);
-    }
-
     public Map<String, String> getUserProfileInfo() {
         return mUserProfileInfo;
-    }
-
-    public List<UserAddressDto> getUserAddresses() {
-        return mUserAddresses;
-    }
-
-    public Map<String, Boolean> getUserSettings() {
-        return mUserSettings;
     }
 
     public void saveUserProfileInfo(String name, String phone, String avatar) {
@@ -206,9 +117,43 @@ public class DataManager {
         mPreferencesManager.saveProfileInfo(mUserProfileInfo);
     }
 
-    public void saveSetting(String notificationKey, boolean isChecked) {
-        mPreferencesManager.saveSetting(notificationKey, isChecked);
-        mUserSettings.put(notificationKey, isChecked);
+    //endregion
+
+    //region ==================== User Addresses ===================
+
+    private void initUserAddressData() {
+        mUserAddresses = new ArrayList<>();
+
+        List<UserAddressRealm> userAddresses = mRealmManager
+                .getAllAddressesFromRealm();
+
+        if (userAddresses.size() == 0) {
+            UserAddressDto userAddress;
+            userAddress = new UserAddressDto(UUID.randomUUID().toString(),
+                    "Home", "Airport Road", "24", "56",
+                    9, "Beware of crazy dogs");
+            mRealmManager.saveNewAddressToRealm(userAddress);
+            mUserAddresses.add(userAddress);
+
+            userAddress = new UserAddressDto(UUID.randomUUID().toString(),
+                    "Work", "Central Park", "123", "67",
+                    2, "In the middle of nowhere");
+            mRealmManager.saveNewAddressToRealm(userAddress);
+            mUserAddresses.add(userAddress);
+        } else {
+            for (UserAddressRealm address : userAddresses) {
+                UserAddressDto addressDto = new UserAddressDto();
+                addressDto.setId(address.getId());
+                addressDto.setName(address.getName());
+                addressDto.setStreet(address.getStreet());
+                addressDto.setHouse(address.getHouse());
+                addressDto.setHouse(address.getHouse());
+                addressDto.setFloor(address.getFloor());
+                addressDto.setComment(address.getComment());
+                addressDto.setFavorite(address.getFavorite());
+                mUserAddresses.add(addressDto);
+            }
+        }
     }
 
     public void updateOrInsertAddress(UserAddressDto addressDto) {
@@ -217,20 +162,45 @@ public class DataManager {
         } else {
             mUserAddresses.add(0, addressDto);
         }
-        mPreferencesManager.saveUserAddresses(mUserAddresses);
+        mRealmManager.saveNewAddressToRealm(addressDto);
     }
 
     public void removeAddress(UserAddressDto addressDto) {
         if (mUserAddresses.contains(addressDto)) {
             mUserAddresses.remove(mUserAddresses.indexOf(addressDto));
-            getPreferencesManager().saveUserAddresses(mUserAddresses);
+            mRealmManager.deleteFromRealm(UserAddressRealm.class, addressDto.getId());
         }
+        //getPreferencesManager().saveUserAddresses(mUserAddresses);
     }
+
+    public List<UserAddressDto> getUserAddresses() {
+        return mUserAddresses;
+    }
+
+    //endregion
+
+    //region ==================== User Settings ===================
+
+    private void initUserSettingsData() {
+        mUserSettings = getPreferencesManager().getUserSettings();
+    }
+
+    public Map<String, Boolean> getUserSettings() {
+        return mUserSettings;
+    }
+
+    public void saveSetting(String notificationKey, boolean isChecked) {
+        mPreferencesManager.saveSetting(notificationKey, isChecked);
+        mUserSettings.put(notificationKey, isChecked);
+    }
+
+    //endregion
+
+    //region ==================== Products ===================
 
     private List<ProductDto> generateMockData() {
         List<ProductDto> productDtoList = getPreferencesManager().getProductList();
         List<CommentDto> commentList = new ArrayList<>();
-//        commentList.add(new CommentDto());
 
         if (productDtoList == null) {
             productDtoList = new ArrayList<>();
@@ -288,11 +258,91 @@ public class DataManager {
         return productDtoList;
     }
 
+    public Observable<ProductRealm> getProductFromRealm() {
+        return mRealmManager.getAllProductsFromRealm();
+    }
+
+    @RxLogObservable
+    public Observable<ProductRealm> getProductsObsFromNetwork() {
+        return mRestService.getProductResObs(mPreferencesManager.getLastProductUpdate())
+                .compose(new RestCallTransformer<List<ProductRes>>()) //
+                // трансформируем response, выбрасываем ApiError в случае ошибки
+                .flatMap(Observable::from) // преобразуем список товаров в последовательность товаров
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(Schedulers.io())
+                .doOnNext(productRes -> {
+                    if (!productRes.isActive()) {
+                        mRealmManager.deleteFromRealm(ProductRealm.class,
+                                productRes.getId()); // удалить из базы данных если не активен
+                        mDeletedPoducts.add(productRes.getId());
+                    }
+                })
+                .distinct(ProductRes::getRemoteId)
+                .filter(ProductRes::isActive) // пропускаем только активные товары
+                .doOnNext(productRes -> mRealmManager.saveProductResponseToRealm
+                        (productRes)) // сохраняем на диск только активные товары
+                .flatMap(productRes -> Observable.empty());
+    }
+
+    public void updateProduct(ProductDto product) {
+        // TODO: 28-Oct-16 update product count or other property and save to DB
+    }
+
+    //endregion
+
+    //region ==================== Comments ===================
+
+    public void saveCommentToNetworkAndRealm(String productId,
+                                             CommentRes commentRes) {
+        mRestService.uploadComment(productId, commentRes)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(Schedulers.io())
+                .subscribe(new Subscriber<CommentRes>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(CommentRes commentRes) {
+                        mRealmManager.saveNewCommentToRealm(productId, commentRes);
+                    }
+                });
+    }
+
+    //endregion
+
+    //region ==================== Misc ===================
+
+    public PreferencesManager getPreferencesManager() {
+        return mPreferencesManager;
+    }
+
+    public Context getAppContext() {
+        return mAppContext;
+    }
+
     public Retrofit getRetrofit() {
         return mRetrofit;
     }
 
-    public Observable<ProductRealm> getProductFromRealm() {
-        return mRealmManager.getAllProductsFromRealm();
+    public boolean isAuthUser() {
+        return !mPreferencesManager.getAuthToken().equals(ConstantsManager
+                .INVALID_TOKEN);
     }
+
+    public void loginUser(String email, String password) {
+        // TODO: 23-Oct-16 implement user authentication
+    }
+
+    private String getResVal(int resourceId) {
+        return getAppContext().getString(resourceId);
+    }
+
+    //endregion
 }

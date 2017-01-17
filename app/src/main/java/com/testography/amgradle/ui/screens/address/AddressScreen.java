@@ -130,7 +130,6 @@ public class AddressScreen extends AbstractScreen<AccountScreen.Component>
 
         @Override
         public void clickOnAddAddress() {
-            // TODO: 29-Nov-16 save address in model
             if (getView() != null) {
                 UserAddressDto userAddress = getView().getUserAddress();
 

@@ -40,7 +40,7 @@ public class AddressView extends AbstractView<AddressScreen.AddressPresenter>
     @Inject
     AddressScreen.AddressPresenter mPresenter;
 
-    private int mAddressId;
+    private String mAddressId;
 
     public AddressView(Context context, AttributeSet attrs) {
         super(context, attrs);

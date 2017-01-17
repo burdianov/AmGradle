@@ -26,4 +26,6 @@ public class ConstantsManager {
     public static final String TEMPORARY_USER_AVATAR =
             "http://www.topglobus.ru/forum/images/avatars/gallery/filmy/Rambo.jpg";
     public static final String TEMPORARY_USER_NAME = "Rambo";
+
+    public static final String UNIX_EPOCH_TIME = "Thu, 01 Jan 1970 00:00:00 GMT";
 }
