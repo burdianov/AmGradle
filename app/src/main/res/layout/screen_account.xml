@@ -50,7 +50,7 @@
             app:civ_border_color="@color/color_white"
             app:civ_border_width="@dimen/line_size_2"
             app:layout_anchorGravity="bottom|center_horizontal"
-            app:layout_behavior=".ui.behaviors.AvatarImageBehavior"/>
+            app:layout_behavior="com.testography.amgradle.ui.behaviors.AvatarImageBehavior"/>
 
         <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"

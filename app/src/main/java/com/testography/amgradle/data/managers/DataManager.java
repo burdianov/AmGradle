@@ -81,7 +81,6 @@ public class DataManager {
 
         generateMockData();
         initUserProfileData();
-        initUserAddressData();
         initUserSettingsData();
     }
 
@@ -121,7 +120,7 @@ public class DataManager {
 
     //region ==================== User Addresses ===================
 
-    private void initUserAddressData() {
+    private void getUserAddressData() {
         mUserAddresses = new ArrayList<>();
 
         List<UserAddressRealm> userAddresses = mRealmManager
@@ -174,6 +173,7 @@ public class DataManager {
     }
 
     public List<UserAddressDto> getUserAddresses() {
+        getUserAddressData();
         return mUserAddresses;
     }
 

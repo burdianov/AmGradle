@@ -16,9 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <meta-data
+       <!-- <meta-data
             android:name=".utils.GlideConfiguration"
-            android:value="GlideModule"/>
+            android:value="GlideModule"/>-->
 
         <activity
             android:name=".ui.activities.RootActivity"
